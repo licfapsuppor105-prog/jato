@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Screen Control</title>
+
+  <style>
+    :root {
+      --bg: #111;
+      --text: #fff;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      transition: all 0.4s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 3rem;
+    }
+
+    #codeBox {
+      font-size: 2rem;
+      padding: 20px;
+      border: 2px dashed white;
+      margin-top: 20px;
+    }
+
+    .neon {
+      --bg: #0a0015;
+      --text: #00ffcc;
+    }
+
+    .dark {
+      --bg: #111;
+      --text: #fff;
+    }
+
+    .light {
+      --bg: #f5f5f5;
+      --text: #111;
+    }
+
+    .retro {
+      --bg: #2b1b17;
+      --text: #ffcc66;
+      font-family: "Courier New", monospace;
+    }
+
+    .nature {
+      --bg: #0f2d1f;
+      --text: #b6ffb0;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>💻 Écran principal</h1>
+  <div>Code de connexion :</div>
+  <div id="codeBox">...</div>
+
+  <div id="status">Connexion Supabase...</div>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const SUPABASE_URL = "https://bywlmginhonordhhyawf.supabase.co";
+    const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ5d2xtZ2luaG9ub3JkaGh5YXd...",
+    
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const codeBox = document.getElementById("codeBox");
+    const status = document.getElementById("status");
+
+    // Génère un code simple
+    const CODE = Math.floor(1000 + Math.random() * 9000).toString();
+    codeBox.textContent = CODE;
+
+    async function listen() {
+      status.textContent = "Connecté ✔️";
+
+      setInterval(async () => {
+        const { data } = await supabase
+          .from("remote_control")
+          .select("*")
+          .eq("code", CODE)
+          .order("updated_at", { ascending: false })
+          .limit(1);
+
+        if (data && data.length > 0) {
+          const cmd = data[0];
+
+          if (cmd.action === "theme") {
+            document.body.className = cmd.value;
+          }
+
+          if (cmd.action === "effect" && cmd.value === "confetti") {
+            alert("🎉 Effet confetti !");
+          }
+        }
+      }, 1000);
+    }
+
+    listen();
+  </script>
+</body>
+</html>
