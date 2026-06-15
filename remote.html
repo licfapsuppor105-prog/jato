@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Remote Control</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #0f0f0f;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    input {
+      padding: 10px;
+      font-size: 1.2rem;
+      width: 200px;
+      text-align: center;
+      border-radius: 8px;
+      border: none;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 15px;
+      margin: 8px;
+      width: 80%;
+      max-width: 300px;
+      font-size: 1.1rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn:active {
+      transform: scale(0.95);
+    }
+
+    .dark { background: #222; color: white; }
+    .light { background: #ddd; color: black; }
+    .neon { background: #00ffcc; color: black; }
+    .retro { background: #ffcc66; color: black; }
+    .nature { background: #4caf50; color: white; }
+    .effect { background: #ff4081; color: white; }
+  </style>
+</head>
+
+<body>
+
+  <h1>📱 Télécommande</h1>
+  <p>Entre le code du PC :</p>
+
+  <input id="codeInput" placeholder="Ex: 4821" />
+
+  <p id="status">Déconnecté</p>
+
+  <button class="btn dark" onclick="sendTheme('dark')">🌙 Dark</button>
+  <button class="btn light" onclick="sendTheme('light')">☀️ Light</button>
+  <button class="btn neon" onclick="sendTheme('neon')">🌈 Neon</button>
+  <button class="btn retro" onclick="sendTheme('retro')">📺 Retro</button>
+  <button class="btn nature" onclick="sendTheme('nature')">🌿 Nature</button>
+
+  <button class="btn effect" onclick="sendEffect()">🎉 Confetti</button>
+
+  <script type="module">
+    import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+    const SUPABASE_URL = "https://bywlmginhonordhhyawf.supabase.co";
+    const SUPABASE_KEY = "TON_ANON_KEY_ICI";
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const codeInput = document.getElementById("codeInput");
+    const status = document.getElementById("status");
+
+    function getCode() {
+      return codeInput.value.trim();
+    }
+
+    async function sendTheme(theme) {
+      const code = getCode();
+      if (!code) return alert("Entre le code du PC !");
+
+      await supabase.from("remote_control").insert([
+        {
+          code: code,
+          action: "theme",
+          value: theme,
+          updated_at: new Date()
+        }
+      ]);
+
+      status.textContent = "Commande envoyée ✔️";
+      navigator.vibrate?.(50);
+    }
+
+    async function sendEffect() {
+      const code = getCode();
+      if (!code) return alert("Entre le code du PC !");
+
+      await supabase.from("remote_control").insert([
+        {
+          code: code,
+          action: "effect",
+          value: "confetti",
+          updated_at: new Date()
+        }
+      ]);
+
+      status.textContent = "🎉 Effet envoyé";
+      navigator.vibrate?.([50, 50, 50]);
+    }
+  </script>
+
+</body>
+</html>
